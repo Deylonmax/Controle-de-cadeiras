@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Controle de Cadeiras - SNT</title>
+  <style>
+    :root {
+      --bg: #f3f3f3;
+      --text: #333;
+      --verde: #4caf50;
+      --vermelho: #e53935;
+      --amarelo: #fdd835;
+      --btn-bg: #1976d2;
+      --btn-text: #fff;
+    }
+    body.dark {
+      --bg: #121212;
+      --text: #f3f3f3;
+      --verde: #2e7d32;
+      --vermelho: #ef5350;
+      --amarelo: #fbc02d;
+      --btn-bg: #3949ab;
+      --btn-text: #fff;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    button {
+      margin: 10px 10px 0;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: var(--btn-bg);
+      color: var(--btn-text);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .pulpito {
+      background: #ffeb3b;
+      color: #333;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-weight: bold;
+      user-select: none;
+      box-shadow: 0 0 8px 1px rgba(255,235,59,0.7);
+      max-width: 320px;
+      margin: 0 auto 20px auto;
+    }
+    body.dark .pulpito {
+      background: #fbc02d;
+      color: #222;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: nowrap;
+      margin-bottom: 20px;
+    }
+    .coluna {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(0,0,0,0.05);
+      padding: 10px 15px;
+      border-radius: 8px;
+      min-width: 180px;
+      max-width: 240px;
+    }
+    body.dark .coluna {
+      background: rgba(255,255,255,0.1);
+    }
+    .fileira {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .cadeira {
+      width: 40px;
+      height: 40px;
+      background-color: var(--verde);
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2px solid var(--text);
+      transition: background-color 0.3s;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+    }
+    .cadeira.ocupada {
+      background-color: var(--vermelho);
+    }
+    .cadeira.reservada {
+      background-color: var(--amarelo);
+      color: black;
+    }
+    .controle {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .controle label {
+      display: flex;
+      flex-direction: column;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .controle input {
+      margin-top: 4px;
+      padding: 5px 8px;
+      font-size: 14px;
+      width: 60px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .controle input:focus {
+      border-color: var(--btn-bg);
+      outline: none;
+    }
+    .contador {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .legenda {
+      margin-top: 20px;
+    }
+    .legenda span {
+      display: inline-block;
+      margin: 0 10px;
+    }
+    .verde, .vermelha, .amarela {
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+      border-radius: 3px;
+      border: 1px solid var(--text);
+      vertical-align: middle;
+    }
+    .verde { background-color: var(--verde); }
+    .vermelha { background-color: var(--vermelho); }
+    .amarela { background-color: var(--amarelo); }
+    footer {
+      margin-top: 40px;
+      font-size: 14px;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <h1>Controle de Cadeiras - Recepção</h1>
+  <button onclick="alternarModo()">Modo Claro / Escuro</button>
+  <div class="pulpito">Lado do Púlpito</div>
+  <div class="container">
+    <div class="coluna" id="lado-esquerdo"></div>
+    <div class="coluna" id="lado-direito"></div>
+  </div>
+  <div class="controle">
+    <label for="fileiras-esq">Fileiras lado esquerdo
+      <input type="number" id="fileiras-esq" min="1" max="20" value="8" />
+    </label>
+    <label for="cadeiras-esq">Cadeiras por fileira (esq)
+      <input type="number" id="cadeiras-esq" min="1" max="20" value="3" />
+    </label>
+    <label for="fileiras-dir">Fileiras lado direito
+      <input type="number" id="fileiras-dir" min="1" max="20" value="8" />
+    </label>
+    <label for="cadeiras-dir">Cadeiras por fileira (dir)
+      <input type="number" id="cadeiras-dir" min="1" max="20" value="4" />
+    </label>
+    <button onclick="gerarCadeiras()">Gerar Cadeiras</button>
+  </div>
+  <div class="contador" id="contador">Total: 56 | Ocupadas: 0 | Reservadas: 0 | Disponíveis: 56</div>
+  <button onclick="resetar()">Resetar Tudo</button>
+  <div class="legenda">
+    <span><div class="verde"></div> Disponível</span>
+    <span><div class="vermelha"></div> Ocupada</span>
+    <span><div class="amarela"></div> Reservada</span>
+  </div>
+  <footer>Desenvolvimento por Deylon Max (91) 9 9840-5674</footer>
+  <script>
+    let cadeiras = [];
+    let totalCadeiras = 0;
+
+    function criarCadeiras(containerId, fileiras, cadeirasPorFileira, baseIndex) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      for (let i = 0; i < fileiras; i++) {
+        const fileira = document.createElement("div");
+        fileira.className = "fileira";
+        for (let j = 0; j < cadeirasPorFileira; j++) {
+          const index = baseIndex + i * cadeirasPorFileira + j;
+          const cadeira = document.createElement("div");
+          cadeira.className = "cadeira";
+          cadeira.dataset.index = index;
+          const estado = localStorage.getItem(`cadeira-${index}`);
+          if (estado === "ocupada") cadeira.classList.add("ocupada");
+          else if (estado === "reservada") cadeira.classList.add("reservada");
+          cadeira.onclick = () => {
+            if (cadeira.classList.contains("ocupada")) {
+              cadeira.classList.remove("ocupada");
+              cadeira.classList.add("reservada");
+              localStorage.setItem(`cadeira-${index}`, "reservada");
+            } else if (cadeira.classList.contains("reservada")) {
+              cadeira.classList.remove("reservada");
+              localStorage.setItem(`cadeira-${index}`, "livre");
+            } else {
+              cadeira.classList.add("ocupada");
+              localStorage.setItem(`cadeira-${index}`, "ocupada");
+            }
+            atualizarContador();
+          };
+          cadeira.textContent = index + 1;
+          cadeiras.push(cadeira);
+          fileira.appendChild(cadeira);
+        }
+        container.appendChild(fileira);
+      }
+    }
+
+    function atualizarContador() {
+      const ocupadas = cadeiras.filter(c => c.classList.contains("ocupada")).length;
+      const reservadas = cadeiras.filter(c => c.classList.contains("reservada")).length;
+      const disponiveis = totalCadeiras - ocupadas - reservadas;
+      document.getElementById("contador").textContent =
+        `Total: ${totalCadeiras} | Ocupadas: ${ocupadas} | Reservadas: ${reservadas} | Disponíveis: ${disponiveis}`;
+    }
+
+    function resetar() {
+      cadeiras.forEach(c => {
+        c.classList.remove("ocupada", "reservada");
+        localStorage.setItem(`cadeira-${c.dataset.index}`, "livre");
+      });
+      atualizarContador();
+    }
+
+    function alternarModo() {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("modo", document.body.classList.contains("dark") ? "dark" : "light");
+    }
+
+    function aplicarModoInicial() {
+      const salvo = localStorage.getItem("modo");
+      const escuroPreferido = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (salvo === "dark" || (!salvo && escuroPreferido)) {
+        document.body.classList.add("dark");
+      }
+    }
+
+    function gerarCadeiras() {
+      cadeiras = [];
+      const fileirasEsq = Number(document.getElementById("fileiras-esq").value);
+      const cadeirasEsq = Number(document.getElementById("cadeiras-esq").value);
+      const fileirasDir = Number(document.getElementById("fileiras-dir").value);
+      const cadeirasDir = Number(document.getElementById("cadeiras-dir").value);
+      criarCadeiras("lado-esquerdo", fileirasEsq, cadeirasEsq, 0);
+      criarCadeiras("lado-direito", fileirasDir, cadeirasDir, fileirasEsq * cadeirasEsq);
+      totalCadeiras = fileirasEsq * cadeirasEsq + fileirasDir * cadeirasDir;
+      atualizarContador();
+    }
+
+    aplicarModoInicial();
+    gerarCadeiras();
+  </script>
+</body>
+</html>
